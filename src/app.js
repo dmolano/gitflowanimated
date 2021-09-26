@@ -1,25 +1,26 @@
 import React, {Component} from 'react';
 import styled from "styled-components";
 import GitFlow from "./gitflow";
-import shortid from "shortid";
+// import shortid from "shortid";
 
 const DEVELOP = 'develop';
 const MASTER = 'master';
 
-const masterID = shortid.generate();
-const developID = shortid.generate();
+const masterID = 0;
+const developID = 1;
 
 const seedData = () => {
 
     const commits = [
         {
-            id: shortid.generate(),
+            id: masterID,
             branch: masterID,
+            tag: '0',
             gridIndex: 1,
             parents: null,
         },
         {
-            id: shortid.generate(),
+            id: developID,
             branch: developID,
             gridIndex: 1,
             parents: null
@@ -50,6 +51,7 @@ const AppElm = styled.main`
 `;
 
 class App extends Component {
+    shortid_generate = developID + 1;
 
     state = {
         project: seedData()
@@ -60,7 +62,7 @@ class App extends Component {
         const branchCommits = commits.filter(c => c.branch === branchID);
         const lastCommit = branchCommits[branchCommits.length - 1];
         commits.push({
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: branchID,
             gridIndex: lastCommit.gridIndex + mergeGridIndex + 1,
             parents: [lastCommit.id]
@@ -72,20 +74,21 @@ class App extends Component {
 
     handleNewFeature = () => {
         let {branches, commits} = this.state.project;
-        let featureBranches = branches.filter(b => b.featureBranch);
-        let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
+        // let featureBranches = branches.filter(b => b.featureBranch);
+        // let featureBranchName = 'feature ' + ((featureBranches || []).length + 1);
+        let featureBranchName = 'feature ' + document.getElementById('featureNameId').value;
         let developCommits = commits.filter(c => c.branch === developID);
         const lastDevelopCommit = developCommits[developCommits.length - 1];
         let featureOffset = lastDevelopCommit.gridIndex + 1;
         let newBranch = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             name: featureBranchName,
             featureBranch: true,
             canCommit: true,
             color: '#64B5F6'
         };
         let newCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: newBranch.id,
             gridIndex: featureOffset,
             parents: [lastDevelopCommit.id]
@@ -102,21 +105,24 @@ class App extends Component {
 
     handleNewHotFix = () => {
         let {branches, commits} = this.state.project;
-        let hotFixBranches = branches.filter(b => b.hotFixBranch);
-        let hotFixBranchName = 'hot ' + ((hotFixBranches || []).length + 1);
+        // let hotFixBranches = branches.filter(b => b.hotFixBranch);
+        // let hotFixBranchName = 'hot ' + ((hotFixBranches || []).length + 1);
+        let hotfixNameInput = document.getElementById('hotfixNameId');
+        let hotFixBranchName = 'hot ' + hotfixNameInput.value;
         let masterCommits = commits.filter(c => c.branch === masterID);
         const lastMasterCommit = masterCommits[masterCommits.length - 1];
         let hotFixOffset = lastMasterCommit.gridIndex + 1;
 
         let newBranch = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             name: hotFixBranchName,
+            subname: hotfixNameInput.value,
             hotFixBranch: true,
             canCommit: true,
             color: '#ff1744'
         };
         let newCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: newBranch.id,
             gridIndex: hotFixOffset,
             parents: [lastMasterCommit.id]
@@ -131,22 +137,57 @@ class App extends Component {
         });
     };
 
+    handleNewSupport = () => {
+        let {branches, commits} = this.state.project;
+        // let supportBranches = branches.filter(b => b.supportBranch);
+        // let hotFixBranchName = 'hot ' + ((hotFixBranches || []).length + 1);
+        let supportBranchName = 'sup ' + document.getElementById('supportNameId').value;
+        let masterCommits = commits.filter(c => c.branch === masterID);
+        const lastMasterCommit = masterCommits[masterCommits.length - 1];
+        let supportOffset = lastMasterCommit.gridIndex + 1;
+
+        let newBranch = {
+            id: this.shortid_generate++,
+            name: supportBranchName,
+            hotFixBranch: false,
+            canCommit: true,
+            color: '#ff1744'
+        };
+        let newCommit = {
+            id: this.shortid_generate++,
+            branch: newBranch.id,
+            gridIndex: supportOffset,
+            parents: [lastMasterCommit.id]
+        };
+        commits.push(newCommit);
+        branches.push(newBranch);
+        this.setState({
+            project: {
+                branches,
+                commits
+            }
+        });
+    };
+
     handleNewRelease = () => {
         let {branches, commits} = this.state.project;
-        let releaseBranches = branches.filter(b => b.releaseBranch);
-        let releaseBranchName = 'release ' + ((releaseBranches || []).length + 1);
+        // let releaseBranches = branches.filter(b => b.releaseBranch);
+        // let releaseBranchName = 'release ' + ((releaseBranches || []).length + 1);
+        let releaseNameInput = document.getElementById('releaseNameId');
+        let releaseBranchName = 'release ' + releaseNameInput.value;
         let developCommits = commits.filter(c => c.branch === developID);
         const lastDevelopCommit = developCommits[developCommits.length - 1];
         let releaseOffset = lastDevelopCommit.gridIndex + 1;
         let newBranch = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             name: releaseBranchName,
+            subname: releaseNameInput.value,
             releaseBranch: true,
             canCommit: true,
             color: '#B2FF59'
         };
         let newCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: newBranch.id,
             gridIndex: releaseOffset,
             parents: [lastDevelopCommit.id]
@@ -159,6 +200,7 @@ class App extends Component {
                 commits
             }
         });
+        document.getElementById('supportNameId').value = releaseNameInput.value;
     };
 
     handleRelease = (sourceBranchID) => {
@@ -173,14 +215,15 @@ class App extends Component {
         const lastDevelopCommit = developCommits[developCommits.length - 1];
 
         const masterMergeCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: masterID,
             gridIndex: Math.max(lastSourceCommit.gridIndex, lastMasterCommit.gridIndex) + 1,
-            parents: [lastMasterCommit.id, lastSourceCommit.id]
+            parents: [lastMasterCommit.id, lastSourceCommit.id],
+            tag: sourceBranch.subname
         };
 
         const developMergeCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: developID,
             gridIndex: Math.max(lastSourceCommit.gridIndex, lastDevelopCommit.gridIndex) + 1,
             parents: [lastDevelopCommit.id, lastSourceCommit.id]
@@ -195,7 +238,7 @@ class App extends Component {
                 commits
             }
         });
-
+        document.getElementById('hotfixNameId').value = sourceBranch.subname;
     };
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
@@ -209,10 +252,11 @@ class App extends Component {
         const lastTargetCommit = targetCommits[targetCommits.length - 1];
 
         const mergeCommit = {
-            id: shortid.generate(),
+            id: this.shortid_generate++,
             branch: targetBranchID,
             gridIndex: Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1,
-            parents: [lastSourceCommit.id, lastTargetCommit.id]
+            parents: [lastSourceCommit.id, lastTargetCommit.id],
+            tag: (targetBranchID === 0 ? 'v' + sourceBranch.name : null)
         };
         commits.push(mergeCommit);
 
@@ -248,8 +292,23 @@ class App extends Component {
         });
     };
 
-    render() {
-        return (
+    handleSetEnableDisableButtonHotfix = () => {
+       //Reference the Button.
+       var inputSubmit = document.getElementById('hotfixNameId');
+       var btnSubmit = document.getElementById('hotfixButtonId');
+
+       //Verify the TextBox value.
+       if (inputSubmit.value.trim() !== "") {
+        //Enable the TextBox when TextBox has value.
+        btnSubmit.disabled = false;
+        } else {
+        //Disable the TextBox when TextBox is empty.
+        btnSubmit.disabled = true;
+        }    
+    };
+
+        render() {
+            return (
             <AppElm>
                 <GitFlow
                     project={this.state.project}
@@ -260,6 +319,9 @@ class App extends Component {
                     onNewRelease={this.handleNewRelease}
                     onDeleteBranch={this.handleDeleteBranch}
                     onNewHotFix={this.handleNewHotFix}
+                    onNewSupport={this.handleNewSupport}
+                    onNewTagSupport={this.handleNewTagSupport}
+                    onSetEnableDisableButton={this.handleSetEnableDisableButton}
                 />
             </AppElm>
         );

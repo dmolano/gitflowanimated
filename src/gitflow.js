@@ -96,11 +96,13 @@ const Commit = styled.li`
         box-shadow: none;
         opacity: .5;
     }
+    font-size: .6rem;
+    letter-spacing: 1pt;
 `;
 
 const Tag = styled.p`
     color: #fff;
-    font-size: .7rem;
+    font-size: .5rem;
     letter-spacing: 1pt;
 `;
 const ConnectionsContainer = styled.div`
@@ -170,7 +172,7 @@ class GitFlow extends Component {
 
     renderCommitButton = (branch) => {
         return (
-            <ButtonIcon
+            <ButtonIcon  data-tip="Commit"
                 onClick={this.props.onCommit.bind(this, branch.id, 0)}
             >C</ButtonIcon>
         )
@@ -179,7 +181,7 @@ class GitFlow extends Component {
     renderDeleteButton = (branch) => {
         return (
             <BranchActions count={1}>
-                <ButtonIcon onClick={this.deleteBranch.bind(this, branch.id)}>✕</ButtonIcon>
+                <ButtonIcon  data-tip="Delete" onClick={this.deleteBranch.bind(this, branch.id)}>✕</ButtonIcon>
             </BranchActions>
         )
     }
@@ -191,9 +193,9 @@ class GitFlow extends Component {
                 <BranchActions
                     count={3}
                 >
-                    <ButtonIcon onClick={this.props.onNewRelease}>R</ButtonIcon>
+                    <ButtonIcon  data-tip="Release" onClick={this.props.onNewRelease}>R</ButtonIcon>
                     {this.renderCommitButton(branch)}
-                    <ButtonIcon onClick={this.props.onNewFeature}>F</ButtonIcon>
+                    <ButtonIcon  data-tip="Feature" onClick={this.props.onNewFeature}>F</ButtonIcon>
                 </BranchActions>
             </BranchHeader>
         )
@@ -208,7 +210,7 @@ class GitFlow extends Component {
                 <BranchActions
                     count={2}
                 >
-                    <ButtonIcon
+                    <ButtonIcon data-tip="Merge"
                         onClick={this.props.onMerge.bind(this, branch.id, undefined)}
                     >M</ButtonIcon>
                     {this.renderCommitButton(branch)}
@@ -234,7 +236,7 @@ class GitFlow extends Component {
                     count={2}
                 >
                     {this.renderCommitButton(branch)}
-                    <ButtonIcon
+                    <ButtonIcon data-tip="Merge"
                         onClick={this.props.onRelease.bind(this, branch.id, undefined)}
                     >M</ButtonIcon>
                 </BranchActions>
@@ -254,10 +256,27 @@ class GitFlow extends Component {
         return (
             <BranchHeader>
                 <BranchName>{branch.name}</BranchName>
-                <BranchActions count={1}>
-                    <ButtonIcon
+                <BranchActions count={2}>
+                    <ButtonIcon data-tip="Hotfix"
                         onClick={this.props.onNewHotFix}
                     >H</ButtonIcon>
+                    <ButtonIcon data-tip="Support"
+                        onClick={this.props.onNewSupport}
+                    >S</ButtonIcon>
+                </BranchActions>
+            </BranchHeader>
+        )
+    };
+
+    renderSupportBranchHeader = (branch) => {
+        return (
+            <BranchHeader>
+                <BranchName>{branch.name}</BranchName>
+                <BranchActions count={2}>
+                    {this.renderCommitButton(branch)}
+                    <ButtonIcon data-tip="Tag"
+                        onClick={this.props.onNewTagSupport}
+                    >T</ButtonIcon>
                 </BranchActions>
             </BranchHeader>
         )
@@ -270,6 +289,7 @@ class GitFlow extends Component {
             releaseBranches,
             featureBranches,
             hotFixBranches,
+            supportBranches,
             noOfBranches
         } = param;
         return (
@@ -278,6 +298,9 @@ class GitFlow extends Component {
             >
                 {
                     this.renderMasterBranchHeader(masterBranch)
+                }
+                {
+                    supportBranches.map(b => this.renderReleaseBranchHeader(b))
                 }
                 {
                     hotFixBranches.map(b => this.renderReleaseBranchHeader(b))
@@ -302,9 +325,10 @@ class GitFlow extends Component {
             releaseBranches,
             featureBranches,
             hotFixBranches,
+            supportBranches,
             noOfBranches
         } = param;
-        let branches = [masterBranch, ...hotFixBranches, ...releaseBranches, developBranch, ...featureBranches];
+        let branches = [masterBranch, ...hotFixBranches, ...releaseBranches, developBranch, ...featureBranches, ...supportBranches];
         return (
             <GridColumn
                 count={noOfBranches}
@@ -337,9 +361,8 @@ class GitFlow extends Component {
                             innerRef={this.storeCommitPosition.bind(this, commit.id, branchIndex)}
                             key={'commit-' + commit.id}
                             color={branch.color}
-                            top={commit.gridIndex - 1}
-                        >
-                            {isMasterBranch ? <Tag>{'v' + idx}</Tag> : null}
+                            top={commit.gridIndex - 1}>
+                            {isMasterBranch ? <Tag>{'v' + commit.tag}</Tag> : commit.id}
                         </Commit>
                     })
                 }
@@ -356,6 +379,7 @@ class GitFlow extends Component {
         const developBranch = branches.find(b => b.name === 'develop');
         const releaseBranches = branches.filter(b => b.releaseBranch);
         const featureBranches = branches.filter(b => b.featureBranch);
+        const supportBranches = branches.filter(b => b.supportBranch);
         const noOfBranches = branches.length;
         const param = {
             masterBranch,
@@ -363,14 +387,36 @@ class GitFlow extends Component {
             developBranch,
             featureBranches,
             releaseBranches,
+            supportBranches,
             noOfBranches
         };
         return (
             <GitFlowElm>
                 <GlobalActions>
-                    <Button onClick={this.props.onNewHotFix}>New Hot Fix</Button>
-                    <Button onClick={this.props.onNewRelease}>New Release</Button>
-                    <Button onClick={this.props.onNewFeature}>New Feature</Button>
+                    <fil>
+                        <label for="hotfixNameId">Hotfix name:</label>
+                        <input data-tip="hello world" type="text" id="hotfixNameId" name="Hotfix Name" placeholder="Hotfix name" onKeyUp={this.props.onSetEnableDisableButtonHotfix}></input>
+                        <Button id="hotfixButtonId" onClick={this.props.onNewHotFix}>New Hot Fix</Button>
+                    </fil>
+                    <fil>
+                        <label for="releaseNameId">Release name:</label>
+                        <input type="text" id="releaseNameId" name="Release Name" placeholder="Release name"></input>
+                        <Button onClick={this.props.onNewRelease}>New Release</Button>
+                    </fil>
+                    <fil>
+                        <label for="featureNameId">Feature name:</label>
+                        <input type="text" id="featureNameId" name="Feature Name" placeholder="Feature name"></input>
+                        <Button onClick={this.props.onNewFeature}>New Feature</Button>
+                    </fil>
+                    <br/>
+                    <fil>
+                        <label for="supportNameId">Support name:</label>
+                        <input type="text" id="supportNameId" name="Support name" placeholder="Support name"></input>
+                    </fil>
+                    <fil>
+                        <label for="tagSupportNameId">Tag Support name:</label>
+                        <input type="text" id="tagSupportNameId" name="Tag support name" placeholder="Tag support name"></input>
+                    </fil>
                 </GlobalActions>
                 <ProjectElm>
                     {this.renderBranchHeaders(param)}

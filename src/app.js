@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import styled from "styled-components";
 import GitFlow from "./gitflow";
 // import shortid from "shortid";
+import bigDecimal from 'js-big-decimal';
 
 const DEVELOP = 'develop';
 const MASTER = 'master';
@@ -108,15 +109,20 @@ class App extends Component {
         // let hotFixBranches = branches.filter(b => b.hotFixBranch);
         // let hotFixBranchName = 'hot ' + ((hotFixBranches || []).length + 1);
         let hotfixNameInput = document.getElementById('hotfixNameId');
-        let hotFixBranchName = 'hot ' + hotfixNameInput.value;
         let masterCommits = commits.filter(c => c.branch === masterID);
         const lastMasterCommit = masterCommits[masterCommits.length - 1];
         let hotFixOffset = lastMasterCommit.gridIndex + 1;
+        let newSubname = hotfixNameInput.value;
+
+        if (newSubname.length === 0) {
+            newSubname = this.nextRightNumber(lastMasterCommit.tag);
+        }
+        let hotFixBranchName = 'hot ' + newSubname;
 
         let newBranch = {
             id: this.shortid_generate++,
             name: hotFixBranchName,
-            subname: hotfixNameInput.value,
+            subname: newSubname,
             hotFixBranch: true,
             canCommit: true,
             color: '#ff1744'
@@ -149,7 +155,7 @@ class App extends Component {
         let newBranch = {
             id: this.shortid_generate++,
             name: supportBranchName,
-            hotFixBranch: false,
+            supportBranch: true,
             canCommit: true,
             color: '#ff1744'
         };
@@ -238,7 +244,7 @@ class App extends Component {
                 commits
             }
         });
-        document.getElementById('hotfixNameId').value = sourceBranch.subname;
+//        document.getElementById('hotfixNameId').value = sourceBranch.subname;
     };
 
     handleMerge = (sourceBranchID, targetBranchID = developID) => {
@@ -306,6 +312,19 @@ class App extends Component {
         btnSubmit.disabled = true;
         }    
     };
+
+    nextRightNumber = (something) => {
+        let mayBeNumber = new bigDecimal(something);
+
+        if (mayBeNumber !== NaN) {
+            if (Number.isSafeInteger(mayBeNumber)) {
+                something = (mayBeNumber++).toString() + ".1";
+            } else {
+                 something = (mayBeNumber.add(new bigDecimal(0.1))).getValue();
+            }
+        }
+        return something;
+    }
 
         render() {
             return (

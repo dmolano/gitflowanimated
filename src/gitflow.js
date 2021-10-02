@@ -19,7 +19,7 @@ const ProjectElm = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 90px 1fr;
+  grid-template-rows: 110px 1fr;
   margin-top: 20px;
   background: linear-gradient(
     135deg,
@@ -34,11 +34,11 @@ const ProjectElm = styled.div`
 const GridColumn = styled.div`
   position: relative;
   display: grid;
-  grid-template-columns: ${(p) => `repeat(${p.count || 2}, 90px)`};
+  grid-template-columns: ${(p) => `repeat(${p.count || 2}, 110px)`};
 `;
 
 const BranchHeader = styled.div`
-  max-width: 90px;
+  max-width: 110px;
   padding: 5px;
   text-align: center;
   background-color: #131d45;
@@ -106,7 +106,7 @@ const Commit = styled.li`
 const Tag = styled.p`
   color: #fff;
   font-size: 0.5rem;
-  letter-spacing: 1pt;
+  letter-spacing: 0pt;
 `;
 const ConnectionsContainer = styled.div`
   position: absolute;
@@ -138,7 +138,7 @@ class GitFlow extends Component {
     if (commitElm) {
       this.commitPositions[id] = {
         top: commitElm.offsetTop,
-        left: offset * 90 + commitElm.offsetLeft,
+        left: offset * 110 + commitElm.offsetLeft,
       };
     }
   };
@@ -200,9 +200,12 @@ class GitFlow extends Component {
     return (
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
-        <BranchActions count={3}>
-          <ButtonIcon data-tip="Release" onClick={this.props.onNewRelease}>
+        <BranchActions count={4}>
+          <ButtonIcon data-tip="Release" onClick={this.props.onNewMajorRelease}>
             R
+          </ButtonIcon>
+          <ButtonIcon data-tip="Release" onClick={this.props.onNewMinorRelease}>
+            r
           </ButtonIcon>
           {this.renderCommitButton(branch)}
           <ButtonIcon data-tip="Feature" onClick={this.props.onNewFeature}>
@@ -367,7 +370,11 @@ class GitFlow extends Component {
               color={branch.color}
               top={commit.gridIndex - 1}
             >
-              {isMasterBranch ? <Tag>{"v" + commit.tag}</Tag> : commit.id}
+              {isMasterBranch ? (
+                <Tag>{commit.semver.toString()}</Tag>
+              ) : (
+                commit.id
+              )}
             </Commit>
           );
         })}

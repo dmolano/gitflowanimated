@@ -1,4 +1,4 @@
-import styled, {injectGlobal, keyframes} from 'styled-components';
+import styled, { injectGlobal, keyframes } from "styled-components";
 
 injectGlobal`
     html, body, div, span, applet, object, iframe,
@@ -62,8 +62,8 @@ injectGlobal`
 `;
 
 export const FlowName = styled.h2`
-    font-weight: bold;
-    font-size: 1.2rem;
+  font-weight: bold;
+  font-size: 1.2rem;
 `;
 
 export const FlowActions = styled.div`
@@ -76,32 +76,31 @@ export const FlowActions = styled.div`
 export const Button = styled.button`
   border: none;
   background: transparent;
-  border: 1px solid #2196F3;
-  color: #2196F3;
+  border: 1px solid #2196f3;
+  color: #2196f3;
   border-radius: 20px;
   padding: 10px;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
   &:hover {
-    background-color: #E3F2FD;
+    background-color: #e3f2fd;
   }
 `;
 
 export const ButtonIcon = styled.button`
-    display: grid;
-    align-items: center;
-    justify-items: center;
+  display: grid;
+  align-items: center;
+  justify-items: center;
   width: 24px;
   height: 24px;
   background: transparent;
-  background: transparent;
-  border: 1px solid #2196F3;
-  color: #2196F3;
+  border: 1px solid #2196f3;
+  color: #2196f3;
   border-radius: 50%;
   cursor: pointer;
-  transition: all .2s;
+  transition: all 0.2s;
   &:hover {
-    background-color: #2196F3;
+    background-color: #2196f3;
     color: #fff;
     transform: scale(1.1);
   }

@@ -201,10 +201,16 @@ class GitFlow extends Component {
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
         <BranchActions count={4}>
-          <ButtonIcon data-tip="Release" onClick={this.props.onNewMajorRelease}>
+          <ButtonIcon
+            data-tip="Release Major"
+            onClick={this.props.onNewMajorRelease}
+          >
             R
           </ButtonIcon>
-          <ButtonIcon data-tip="Release" onClick={this.props.onNewMinorRelease}>
+          <ButtonIcon
+            data-tip="Release Minor"
+            onClick={this.props.onNewMinorRelease}
+          >
             r
           </ButtonIcon>
           {this.renderCommitButton(branch)}

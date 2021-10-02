@@ -292,10 +292,13 @@ class GitFlow extends Component {
     return (
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
-        <BranchActions count={2}>
+        <BranchActions count={3}>
           {this.renderCommitButton(branch)}
-          <ButtonIcon data-tip="Tag" onClick={this.props.onNewTagSupport}>
-            T
+          <ButtonIcon data-tip="Tag Minor" onClick={this.props.onNewTagSupport}>
+            Tm
+          </ButtonIcon>
+          <ButtonIcon data-tip="Tag Patch" onClick={this.props.onNewTagSupport}>
+            Tp
           </ButtonIcon>
         </BranchActions>
       </BranchHeader>
@@ -304,12 +307,12 @@ class GitFlow extends Component {
 
   renderBranchHeaders = (param) => {
     const {
+      supportBranches,
       masterBranch,
       developBranch,
       releaseBranches,
       featureBranches,
       hotFixBranches,
-      supportBranches,
       noOfBranches,
     } = param;
     return (
@@ -335,12 +338,12 @@ class GitFlow extends Component {
       noOfBranches,
     } = param;
     let branches = [
+      ...supportBranches,
       masterBranch,
       ...hotFixBranches,
       ...releaseBranches,
       developBranch,
       ...featureBranches,
-      ...supportBranches,
     ];
     return (
       <GridColumn count={noOfBranches}>

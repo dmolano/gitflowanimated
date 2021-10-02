@@ -8,18 +8,21 @@ const MASTER = "master";
 
 const masterID = 0;
 const developID = 1;
+const firstMasterCommitID = 2;
+const firstDevelopCommitID = 3;
+const firstFreeCommitID = 4;
 
 const seedData = () => {
   const commits = [
     {
-      id: masterID,
+      id: firstMasterCommitID,
       branch: masterID,
       semver: new SemVer("0.0.0"),
       gridIndex: 1,
       parents: null,
     },
     {
-      id: developID,
+      id: firstDevelopCommitID,
       branch: developID,
       gridIndex: 1,
       parents: null,
@@ -50,7 +53,7 @@ const AppElm = styled.main`
 `;
 
 class App extends Component {
-  shortid_generate = developID + 1;
+  shortid_generate = firstFreeCommitID;
   lastFeatureNumber = 1;
 
   state = {
@@ -156,18 +159,28 @@ class App extends Component {
 
   handleNewSupport = () => {
     let { branches, commits } = this.state.project;
-    let supportBranchName =
-      "sup " + document.getElementById("supportNameId").value;
+    let supportNameInput = document.getElementById("supportNameId");
     let masterCommits = commits.filter((c) => c.branch === masterID);
     const lastMasterCommit = masterCommits[masterCommits.length - 1];
     let supportOffset = lastMasterCommit.gridIndex + 1;
+    let newSemVer;
 
+    if (supportNameInput.value.length > 0) {
+      newSemVer = new SemVer(supportNameInput.value);
+    }
+    if (newSemVer === undefined || newSemVer === null) {
+      newSemVer = new SemVer(lastMasterCommit.semver.toString());
+    } else {
+      newSemVer = new SemVer(supportNameInput.value);
+    }
+    let supportBranchName = "sup " + newSemVer;
     let newBranch = {
       id: this.shortid_generate++,
-      name: supportBranchName,
+      name: supportBranchName + "+",
+      semver: newSemVer,
       supportBranch: true,
       canCommit: true,
-      color: "#ff1744",
+      color: "#E4FF19",
     };
     let newCommit = {
       id: this.shortid_generate++,

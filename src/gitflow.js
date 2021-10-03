@@ -183,16 +183,31 @@ class GitFlow extends Component {
     );
   };
 
+  renderTagButton = (branch) => {
+    return (
+      <ButtonIcon
+        data-tip="Tag"
+        onClick={this.props.onTag.bind(this, branch.id, 0)}
+      >
+        T
+      </ButtonIcon>
+    );
+  };
+
+  renderDeleteActions = (branch) => {
+    return (
+      <BranchActions count={1}>{this.renderDeleteButton(branch)}</BranchActions>
+    );
+  };
+
   renderDeleteButton = (branch) => {
     return (
-      <BranchActions count={1}>
-        <ButtonIcon
-          data-tip="Delete"
-          onClick={this.deleteBranch.bind(this, branch.id)}
-        >
-          ✕
-        </ButtonIcon>
-      </BranchActions>
+      <ButtonIcon
+        data-tip="Delete"
+        onClick={this.deleteBranch.bind(this, branch.id)}
+      >
+        ✕
+      </ButtonIcon>
     );
   };
 
@@ -225,7 +240,7 @@ class GitFlow extends Component {
   renderFeatureBranchHeader = (branch) => {
     let actionsElm = null;
     if (branch.merged) {
-      actionsElm = this.renderDeleteButton(branch);
+      actionsElm = this.renderDeleteActions(branch);
     } else {
       actionsElm = (
         <BranchActions count={2}>
@@ -250,7 +265,7 @@ class GitFlow extends Component {
   renderReleaseBranchHeader = (branch) => {
     let actionsElm = null;
     if (branch.merged) {
-      actionsElm = this.renderDeleteButton(branch);
+      actionsElm = this.renderDeleteActions(branch);
     } else {
       actionsElm = (
         <BranchActions count={2}>
@@ -276,10 +291,7 @@ class GitFlow extends Component {
     return (
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
-        <BranchActions count={2}>
-          <ButtonIcon data-tip="Support" onClick={this.props.onNewSupport}>
-            S
-          </ButtonIcon>
+        <BranchActions count={1}>
           <ButtonIcon data-tip="Hotfix" onClick={this.props.onNewHotFix}>
             H
           </ButtonIcon>
@@ -293,13 +305,9 @@ class GitFlow extends Component {
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
         <BranchActions count={3}>
+          {this.renderDeleteButton(branch)}
           {this.renderCommitButton(branch)}
-          <ButtonIcon data-tip="Tag Minor" onClick={this.props.onNewTagSupport}>
-            Tm
-          </ButtonIcon>
-          <ButtonIcon data-tip="Tag Patch" onClick={this.props.onNewTagSupport}>
-            Tp
-          </ButtonIcon>
+          {this.renderTagButton(branch)}
         </BranchActions>
       </BranchHeader>
     );
@@ -376,10 +384,14 @@ class GitFlow extends Component {
                 branchIndex
               )}
               key={"commit-" + commit.id}
-              color={branch.color}
+              color={
+                commit.tag !== undefined && commit.tag !== null
+                  ? commit.color
+                  : branch.color
+              }
               top={commit.gridIndex - 1}
             >
-              {isMasterBranch ? (
+              {isMasterBranch || commit.semver !== undefined ? (
                 <Tag>{commit.semver.toString()}</Tag>
               ) : (
                 commit.id

@@ -75,6 +75,30 @@ class App extends Component {
     });
   };
 
+  handleTag = (sourceBranchID, mergeGridIndex = 0) => {
+    let { branches, commits } = this.state.project;
+    const sourceBranchCommits = commits.filter(
+      (c) => c.branch === sourceBranchID
+    );
+    const lastCommit = sourceBranchCommits[sourceBranchCommits.length - 1];
+    const sourceBranch = branches.find((b) => b.id === sourceBranchID);
+    let nextSemVer = new SemVer(sourceBranch.lastTag.toString()).inc("patch");
+
+    sourceBranch.lastTag = nextSemVer;
+    commits.push({
+      id: this.shortid_generate++,
+      branch: sourceBranchID,
+      gridIndex: lastCommit.gridIndex + mergeGridIndex + 1,
+      parents: [lastCommit.id],
+      tag: nextSemVer.toString(),
+      semver: nextSemVer,
+      color: "#E040FB",
+    });
+    this.setState({
+      commits,
+    });
+  };
+
   handleNewFeature = () => {
     let { branches, commits } = this.state.project;
     let developCommits = commits.filter((c) => c.branch === developID);
@@ -180,7 +204,8 @@ class App extends Component {
       semver: newSemVer,
       supportBranch: true,
       canCommit: true,
-      color: "#E4FF19",
+      lastTag: newSemVer,
+      color: "#E3FF32",
     };
     let newCommit = {
       id: this.shortid_generate++,
@@ -235,6 +260,7 @@ class App extends Component {
       releaseBranch: true,
       canCommit: true,
       color: "#B2FF59",
+      releaseType: releaseType,
     };
     let newCommit = {
       id: this.shortid_generate++,
@@ -250,13 +276,16 @@ class App extends Component {
         commits,
       },
     });
-    document.getElementById("supportNameId").value = newSemVer.toString();
+    document.getElementById("supportNameId").value = "";
     document.getElementById("releaseNameId").value = "";
   };
 
   handleRelease = (sourceBranchID) => {
     let { branches, commits } = this.state.project;
     const sourceBranch = branches.find((b) => b.id === sourceBranchID);
+    if (sourceBranch.releaseType === "major") {
+      this.handleNewSupport();
+    }
     const sourceCommits = commits.filter((c) => c.branch === sourceBranchID);
 
     const masterCommits = commits.filter((c) => c.branch === masterID);
@@ -292,6 +321,7 @@ class App extends Component {
       },
     });
     document.getElementById("hotfixNameId").value = "";
+    document.getElementById("supportNameId").value = "";
   };
 
   handleMerge = (sourceBranchID, targetBranchID = developID) => {
@@ -374,7 +404,7 @@ class App extends Component {
           onDeleteBranch={this.handleDeleteBranch}
           onNewHotFix={this.handleNewHotFix}
           onNewSupport={this.handleNewSupport}
-          onNewTagSupport={this.handleNewTagSupport}
+          onTag={this.handleTag}
           onSetEnableDisableButton={this.handleSetEnableDisableButton}
         />
       </AppElm>

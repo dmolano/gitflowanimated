@@ -72,7 +72,7 @@ class App extends Component {
     });
     if (branchID === developID) {
       let ltFeatureBranches = branches.filter(
-        (b) => b.ltFeatureBranch || b.merged === false
+        (b) => b.ltFeatureBranch && b.merged === false
       );
       ltFeatureBranches.forEach((b) => {
         document.getElementById(
@@ -365,7 +365,7 @@ class App extends Component {
     sourceBranch.merged = true;
 
     let ltFeatureBranches = branches.filter(
-      (b) => b.ltFeatureBranch || b.merged === false
+      (b) => b.ltFeatureBranch && b.merged === false
     );
     ltFeatureBranches.forEach((b) => {
       document.getElementById(
@@ -406,7 +406,7 @@ class App extends Component {
 
     if (targetBranchID === developID) {
       let ltFeatureBranches = branches.filter(
-        (b) => b.ltFeatureBranch || b.merged === false
+        (b) => b.ltFeatureBranch && b.merged === false
       );
       ltFeatureBranches.forEach((b) => {
         document.getElementById(

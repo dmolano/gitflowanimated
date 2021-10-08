@@ -61,7 +61,7 @@ class App extends Component {
   };
 
   handleCommit = (branchID, mergeGridIndex = 0) => {
-    let { commits } = this.state.project;
+    let { branches, commits } = this.state.project;
     const branchCommits = commits.filter((c) => c.branch === branchID);
     const lastCommit = branchCommits[branchCommits.length - 1];
     commits.push({
@@ -70,6 +70,16 @@ class App extends Component {
       gridIndex: lastCommit.gridIndex + mergeGridIndex + 1,
       parents: [lastCommit.id],
     });
+    if (branchID === developID) {
+      let ltFeatureBranches = branches.filter(
+        (b) => b.ltFeatureBranch || b.merged === false
+      );
+      ltFeatureBranches.forEach((b) => {
+        document.getElementById(
+          "updateButtonIcon" + b.id + "FeatureBranchId"
+        ).disabled = false;
+      });
+    }
     this.setState({
       commits,
     });
@@ -99,7 +109,7 @@ class App extends Component {
     });
   };
 
-  handleNewFeature = () => {
+  handleNewLongTermFeature = () => {
     let { branches, commits } = this.state.project;
     let developCommits = commits.filter((c) => c.branch === developID);
     const lastDevelopCommit = developCommits[developCommits.length - 1];
@@ -108,17 +118,57 @@ class App extends Component {
     let featureBranchName;
 
     if (featureNameInput.value.length > 0) {
-      featureBranchName = "feature " + featureNameInput.value;
+      featureBranchName = "ltfeature " + featureNameInput.value;
     } else {
       featureBranchName =
-        "feature " +
+        "ltfeature " +
         "rm" +
-        (this.lastFeatureNumber++).toString().padStart(3, "0");
+        (this.lastFeatureNumber++).toString().padStart(2, "0");
     }
     let newBranch = {
       id: this.shortid_generate++,
       name: featureBranchName,
-      featureBranch: true,
+      ltFeatureBranch: true,
+      canCommit: true,
+      color: "#64B5F6",
+    };
+    let newCommit = {
+      id: this.shortid_generate++,
+      branch: newBranch.id,
+      gridIndex: featureOffset,
+      parents: [lastDevelopCommit.id],
+    };
+    commits.push(newCommit);
+    branches.push(newBranch);
+    this.setState({
+      project: {
+        branches,
+        commits,
+      },
+    });
+    document.getElementById("featureNameId").value = "";
+  };
+
+  handleNewShortTermFeature = () => {
+    let { branches, commits } = this.state.project;
+    let developCommits = commits.filter((c) => c.branch === developID);
+    const lastDevelopCommit = developCommits[developCommits.length - 1];
+    let featureOffset = lastDevelopCommit.gridIndex + 1;
+    let featureNameInput = document.getElementById("featureNameId");
+    let featureBranchName;
+
+    if (featureNameInput.value.length > 0) {
+      featureBranchName = "stfeature " + featureNameInput.value;
+    } else {
+      featureBranchName =
+        "stfeature " +
+        "rm" +
+        (this.lastFeatureNumber++).toString().padStart(2, "0");
+    }
+    let newBranch = {
+      id: this.shortid_generate++,
+      name: featureBranchName,
+      stFeatureBranch: true,
       canCommit: true,
       color: "#64B5F6",
     };
@@ -314,6 +364,14 @@ class App extends Component {
     commits.push(masterMergeCommit, developMergeCommit);
     sourceBranch.merged = true;
 
+    let ltFeatureBranches = branches.filter(
+      (b) => b.ltFeatureBranch || b.merged === false
+    );
+    ltFeatureBranches.forEach((b) => {
+      document.getElementById(
+        "updateButtonIcon" + b.id + "FeatureBranchId"
+      ).disabled = false;
+    });
     this.setState({
       project: {
         branches,
@@ -345,6 +403,49 @@ class App extends Component {
     commits.push(mergeCommit);
 
     sourceBranch.merged = true;
+
+    if (targetBranchID === developID) {
+      let ltFeatureBranches = branches.filter(
+        (b) => b.ltFeatureBranch || b.merged === false
+      );
+      ltFeatureBranches.forEach((b) => {
+        document.getElementById(
+          "updateButtonIcon" + b.id + "FeatureBranchId"
+        ).disabled = false;
+      });
+    }
+    this.setState({
+      project: {
+        branches,
+        commits,
+      },
+    });
+  };
+
+  handleUpdate = (targetBranchID, sourceBranchID = developID) => {
+    let { branches, commits } = this.state.project;
+
+    const sourceBranch = branches.find((b) => b.id === sourceBranchID);
+    const sourceCommits = commits.filter((c) => c.branch === sourceBranchID);
+    const targetCommits = commits.filter((c) => c.branch === targetBranchID);
+
+    const lastSourceCommit = sourceCommits[sourceCommits.length - 1];
+    const lastTargetCommit = targetCommits[targetCommits.length - 1];
+
+    const updateCommit = {
+      id: this.shortid_generate++,
+      branch: targetBranchID,
+      gridIndex:
+        Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1,
+      parents: [lastSourceCommit.id, lastTargetCommit.id],
+      tag: targetBranchID === 0 ? sourceBranch.name : null,
+      update: lastTargetCommit.id,
+    };
+    commits.push(updateCommit);
+
+    document.getElementById(
+      "updateButtonIcon" + targetBranchID + "FeatureBranchId"
+    ).disabled = true;
 
     this.setState({
       project: {
@@ -395,10 +496,12 @@ class App extends Component {
       <AppElm>
         <GitFlow
           project={this.state.project}
+          onUpdate={this.handleUpdate}
           onMerge={this.handleMerge}
           onRelease={this.handleRelease}
           onCommit={this.handleCommit}
-          onNewFeature={this.handleNewFeature}
+          onNewLongTermFeature={this.handleNewLongTermFeature}
+          onNewShortTermFeature={this.handleNewShortTermFeature}
           onNewMajorRelease={this.handleNewMajorRelease}
           onNewMinorRelease={this.handleNewMinorRelease}
           onDeleteBranch={this.handleDeleteBranch}

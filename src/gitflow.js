@@ -3,7 +3,9 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 import { Button, ButtonIcon, fallDownAnimation, fadeIn } from "./global-styles";
 import GoeyFilter from "./goey-filter";
-import Connections from "./connections";
+import Connections, { DISTANCE_BETWEEN_COMMIT_BALLS } from "./connections";
+
+const WIDTH_BRANCH_HEADER = 140;
 
 const GitFlowElm = styled.div`
   margin: 0 auto;
@@ -19,7 +21,7 @@ const ProjectElm = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 110px 1fr;
+  grid-template-rows: ${WIDTH_BRANCH_HEADER}px 1fr;
   margin-top: 20px;
   background: linear-gradient(
     135deg,
@@ -34,11 +36,12 @@ const ProjectElm = styled.div`
 const GridColumn = styled.div`
   position: relative;
   display: grid;
-  grid-template-columns: ${(p) => `repeat(${p.count || 2}, 110px)`};
+  grid-template-columns: ${(p) =>
+    `repeat(${p.count || 2}, ${WIDTH_BRANCH_HEADER}px)`};
 `;
 
 const BranchHeader = styled.div`
-  max-width: 110px;
+  max-width: ${WIDTH_BRANCH_HEADER}px;
   padding: 5px;
   text-align: center;
   background-color: #131d45;
@@ -75,13 +78,12 @@ const Commits = styled.ol`
   border-right: 1px solid #1b295f;
   transition: opacity 0.5s;
 `;
-
 const Commit = styled.li`
   position: absolute;
   display: grid;
   align-items: center;
   justify-items: center;
-  top: ${(p) => p.top * 45 + "px"};
+  top: ${(p) => p.top * DISTANCE_BETWEEN_COMMIT_BALLS + "px"};
   left: 50%;
   width: 25px;
   height: 25px;
@@ -138,7 +140,7 @@ class GitFlow extends Component {
     if (commitElm) {
       this.commitPositions[id] = {
         top: commitElm.offsetTop,
-        left: offset * 110 + commitElm.offsetLeft,
+        left: offset * WIDTH_BRANCH_HEADER + commitElm.offsetLeft,
       };
     }
   };
@@ -215,7 +217,7 @@ class GitFlow extends Component {
     return (
       <BranchHeader>
         <BranchName>{branch.name}</BranchName>
-        <BranchActions count={4}>
+        <BranchActions count={5}>
           <ButtonIcon
             data-tip="Release Major"
             onClick={this.props.onNewMajorRelease}
@@ -229,8 +231,17 @@ class GitFlow extends Component {
             r
           </ButtonIcon>
           {this.renderCommitButton(branch)}
-          <ButtonIcon data-tip="Feature" onClick={this.props.onNewFeature}>
+          <ButtonIcon
+            data-tip="Long Term Feature"
+            onClick={this.props.onNewLongTermFeature}
+          >
             F
+          </ButtonIcon>
+          <ButtonIcon
+            data-tip="Short Term Feature"
+            onClick={this.props.onNewShortTermFeature}
+          >
+            f
           </ButtonIcon>
         </BranchActions>
       </BranchHeader>
@@ -243,7 +254,18 @@ class GitFlow extends Component {
       actionsElm = this.renderDeleteActions(branch);
     } else {
       actionsElm = (
-        <BranchActions count={2}>
+        <BranchActions count={branch.ltFeatureBranch ? 3 : 2}>
+          {branch.ltFeatureBranch ? (
+            <ButtonIcon
+              id={"updateButtonIcon" + branch.id + "FeatureBranchId"}
+              data-tip="Update"
+              onClick={this.props.onUpdate.bind(this, branch.id, undefined)}
+            >
+              U
+            </ButtonIcon>
+          ) : (
+            ""
+          )}
           <ButtonIcon
             data-tip="Merge"
             onClick={this.props.onMerge.bind(this, branch.id, undefined)}
@@ -410,7 +432,9 @@ class GitFlow extends Component {
     const hotFixBranches = branches.filter((b) => b.hotFixBranch);
     const developBranch = branches.find((b) => b.name === "develop");
     const releaseBranches = branches.filter((b) => b.releaseBranch);
-    const featureBranches = branches.filter((b) => b.featureBranch);
+    const featureBranches = branches.filter(
+      (b) => b.ltFeatureBranch || b.stFeatureBranch
+    );
     const supportBranches = branches.filter((b) => b.supportBranch);
     const noOfBranches = branches.length;
     const param = {

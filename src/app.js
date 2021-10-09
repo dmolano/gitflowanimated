@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import GitFlow from "./gitflow";
 import { SemVer } from "semver";
+import { Button } from "./global-styles";
 
 const DEVELOP = "develop";
 const MASTER = "master";
@@ -70,18 +71,22 @@ class App extends Component {
       gridIndex: lastCommit.gridIndex + mergeGridIndex + 1,
       parents: [lastCommit.id],
     });
-    if (branchID === developID) {
-      let ltFeatureBranches = branches.filter(
-        (b) => b.ltFeatureBranch && b.merged === false
-      );
-      ltFeatureBranches.forEach((b) => {
-        document.getElementById(
-          "updateButtonIcon" + b.id + "FeatureBranchId"
-        ).disabled = false;
-      });
-    }
+    // if (branchID === developID) {
+    //   let ltFeatureBranches = branches.filter(
+    //     (b) =>
+    //       b.ltFeatureBranch && (b.merged === undefined || b.merged === false)
+    //   );
+    //   ltFeatureBranches.forEach((b) => {
+    //     document.getElementById(
+    //       "updateButtonIcon" + b.id + "FeatureBranchId"
+    //     ).disabled = false;
+    //   });
+    // }
     this.setState({
-      commits,
+      project: {
+        branches,
+        commits,
+      },
     });
   };
 
@@ -364,14 +369,14 @@ class App extends Component {
     commits.push(masterMergeCommit, developMergeCommit);
     sourceBranch.merged = true;
 
-    let ltFeatureBranches = branches.filter(
-      (b) => b.ltFeatureBranch && b.merged === false
-    );
-    ltFeatureBranches.forEach((b) => {
-      document.getElementById(
-        "updateButtonIcon" + b.id + "FeatureBranchId"
-      ).disabled = false;
-    });
+    // let ltFeatureBranches = branches.filter(
+    //   (b) => b.ltFeatureBranch && (b.merged === undefined || b.merged === false)
+    // );
+    // ltFeatureBranches.forEach((b) => {
+    //   document.getElementById(
+    //     "updateButtonIcon" + b.id + "FeatureBranchId"
+    //   ).disabled = false;
+    // });
     this.setState({
       project: {
         branches,
@@ -404,16 +409,17 @@ class App extends Component {
 
     sourceBranch.merged = true;
 
-    if (targetBranchID === developID) {
-      let ltFeatureBranches = branches.filter(
-        (b) => b.ltFeatureBranch && b.merged === false
-      );
-      ltFeatureBranches.forEach((b) => {
-        document.getElementById(
-          "updateButtonIcon" + b.id + "FeatureBranchId"
-        ).disabled = false;
-      });
-    }
+    // if (targetBranchID === developID) {
+    //   let ltFeatureBranches = branches.filter(
+    //     (b) =>
+    //       b.ltFeatureBranch && (b.merged === undefined || b.merged === false)
+    //   );
+    //   ltFeatureBranches.forEach((b) => {
+    //     document.getElementById(
+    //       "updateButtonIcon" + b.id + "FeatureBranchId"
+    //     ).disabled = false;
+    //   });
+    // }
     this.setState({
       project: {
         branches,
@@ -432,27 +438,33 @@ class App extends Component {
     const lastSourceCommit = sourceCommits[sourceCommits.length - 1];
     const lastTargetCommit = targetCommits[targetCommits.length - 1];
 
-    const updateCommit = {
-      id: this.shortid_generate++,
-      branch: targetBranchID,
-      gridIndex:
-        Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1,
-      parents: [lastSourceCommit.id, lastTargetCommit.id],
-      tag: targetBranchID === 0 ? sourceBranch.name : null,
-      update: lastTargetCommit.id,
-    };
-    commits.push(updateCommit);
+    if (lastTargetCommit.parents[0] === lastSourceCommit.id) {
+      alert(
+        "This feature branch is already up to date with the latest dev commit. You will need to create a new commit in the development branch."
+      );
+    } else {
+      const updateCommit = {
+        id: this.shortid_generate++,
+        branch: targetBranchID,
+        gridIndex:
+          Math.max(lastSourceCommit.gridIndex, lastTargetCommit.gridIndex) + 1,
+        parents: [lastSourceCommit.id, lastTargetCommit.id],
+        tag: targetBranchID === 0 ? sourceBranch.name : null,
+        update: lastTargetCommit.id,
+      };
+      commits.push(updateCommit);
 
-    document.getElementById(
-      "updateButtonIcon" + targetBranchID + "FeatureBranchId"
-    ).disabled = true;
+      // document.getElementById(
+      //   "updateButtonIcon" + targetBranchID + "FeatureBranchId"
+      // ).disabled = true;
 
-    this.setState({
-      project: {
-        branches,
-        commits,
-      },
-    });
+      this.setState({
+        project: {
+          branches,
+          commits,
+        },
+      });
+    }
   };
 
   handleDeleteBranch = (branchID) => {

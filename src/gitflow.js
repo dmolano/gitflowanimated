@@ -260,6 +260,7 @@ class GitFlow extends Component {
               id={"updateButtonIcon" + branch.id + "FeatureBranchId"}
               data-tip="Update"
               onClick={this.props.onUpdate.bind(this, branch.id, undefined)}
+              // disabled="true"
             >
               U
             </ButtonIcon>

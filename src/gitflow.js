@@ -6,6 +6,7 @@ import GoeyFilter from "./goey-filter";
 import Connections, { DISTANCE_BETWEEN_COMMIT_BALLS } from "./connections";
 
 const WIDTH_BRANCH_HEADER = 140;
+const HIGH_BRANCH_HEADER = 90;
 
 const GitFlowElm = styled.div`
   margin: 0 auto;
@@ -21,7 +22,7 @@ const ProjectElm = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: ${WIDTH_BRANCH_HEADER}px 1fr;
+  grid-template-rows: ${HIGH_BRANCH_HEADER}px 1fr;
   margin-top: 20px;
   background: linear-gradient(
     135deg,

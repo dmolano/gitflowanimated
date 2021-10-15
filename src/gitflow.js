@@ -255,7 +255,8 @@ class GitFlow extends Component {
       actionsElm = this.renderDeleteActions(branch);
     } else {
       actionsElm = (
-        <BranchActions count={branch.ltFeatureBranch ? 3 : 2}>
+        <BranchActions count={branch.ltFeatureBranch ? 4 : 3}>
+          {this.renderDeleteButton(branch)}
           {branch.ltFeatureBranch ? (
             <ButtonIcon
               id={"updateButtonIcon" + branch.id + "FeatureBranchId"}
@@ -292,14 +293,15 @@ class GitFlow extends Component {
       actionsElm = this.renderDeleteActions(branch);
     } else {
       actionsElm = (
-        <BranchActions count={2}>
-          {this.renderCommitButton(branch)}
+        <BranchActions count={3}>
+          {this.renderDeleteButton(branch)}
           <ButtonIcon
             data-tip="Merge"
             onClick={this.props.onRelease.bind(this, branch.id, undefined)}
           >
             M
           </ButtonIcon>
+          {this.renderCommitButton(branch)}
         </BranchActions>
       );
     }
@@ -330,8 +332,8 @@ class GitFlow extends Component {
         <BranchName>{branch.name}</BranchName>
         <BranchActions count={3}>
           {this.renderDeleteButton(branch)}
-          {this.renderCommitButton(branch)}
           {this.renderTagButton(branch)}
+          {this.renderCommitButton(branch)}
         </BranchActions>
       </BranchHeader>
     );

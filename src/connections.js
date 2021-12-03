@@ -19,14 +19,14 @@ const draw = keyframes`
 `;
 
 const AnimatedLine = styled.line`
-  stroke-dasharray: 500;
-  stroke-dashoffset: 500;
+  stroke-dasharray: 5000;
+  stroke-dashoffset: 5000;
   animation: ${draw} 2s linear forwards;
 `;
 
 const AnimatedPath = styled.path`
-  stroke-dasharray: 500;
-  stroke-dashoffset: 500;
+  stroke-dasharray: 5000;
+  stroke-dashoffset: 5000;
   animation: ${draw} 2s linear forwards;
 `;
 

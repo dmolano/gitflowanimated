@@ -5,7 +5,7 @@ import { Button, ButtonIcon, fallDownAnimation, fadeIn } from "./global-styles";
 import GoeyFilter from "./goey-filter";
 import Connections, { DISTANCE_BETWEEN_COMMIT_BALLS } from "./connections";
 
-const WIDTH_BRANCH_HEADER = 140;
+const WIDTH_BRANCH_HEADER = 110;
 const HIGH_BRANCH_HEADER = 90;
 
 const GitFlowElm = styled.div`
@@ -16,6 +16,7 @@ const GlobalActions = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 10px;
+  margin-bottom: 20px;
 `;
 
 const ProjectElm = styled.div`
@@ -380,7 +381,7 @@ class GitFlow extends Component {
       ...featureBranches,
     ];
     return (
-      <GridColumn count={noOfBranches}>
+      <GridColumn count={noOfBranches} overflow="auto">
         <ConnectionsContainer innerRef={this.cacheConnectionsContainer} />
         {branches.map((branch, index) => {
           return this.renderBranchCommit(branch, index);

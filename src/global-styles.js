@@ -91,8 +91,8 @@ export const ButtonIcon = styled.button`
   display: grid;
   align-items: center;
   justify-items: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   background: transparent;
   border: 1px solid #2196f3;
   color: #2196f3;
